@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Loader2, ShieldCheck, LogOut, Trash2, Database, Users, Settings as Cog } from "lucide-react";
 
 export const Route = createFileRoute("/gx-control")({
+  validateSearch: (s: Record<string, unknown>) => ({ key: typeof s.key === "string" ? s.key : undefined }),
   head: () => ({ meta: [{ title: "GX Control" }, { name: "robots", content: "noindex,nofollow" }] }),
   component: GxControl,
 });
