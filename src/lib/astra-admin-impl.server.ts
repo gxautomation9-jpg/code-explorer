@@ -86,13 +86,13 @@ export async function doLogin(password: string) {
   if (!ok) { recordFail("global"); throw new Error("Invalid password"); }
   clearFail("global");
   setCookie(COOKIE, makeToken(), {
-    httpOnly: true, secure: true, sameSite: "lax", path: "/",
+    httpOnly: true, secure: true, sameSite: "none", path: "/",
     maxAge: SESSION_TTL_MS / 1000,
   });
   return { ok: true };
 }
 export function doLogout() {
-  setCookie(COOKIE, "", { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 0 });
+  setCookie(COOKIE, "", { httpOnly: true, secure: true, sameSite: "none", path: "/", maxAge: 0 });
   return { ok: true };
 }
 
