@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Download, Trash2 } from "lucide-react";
+import { Download, Trash2, ShieldCheck } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 const KEYS = ["astra:session-chats", "astra:session-tasks", "astra:session-memories", "astra:voice-prefs"];
 
