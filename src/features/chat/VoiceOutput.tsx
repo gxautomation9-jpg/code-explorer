@@ -361,13 +361,26 @@ export function VoiceOutput({
           recommendation: reco,
         }));
         if (code === "interrupted" || code === "canceled") return;
+        // Hard synthesis problems → silently hand the whole message to cloud TTS.
+        const hardFail = ["synthesis-failed", "synthesis-unavailable", "audio-busy", "audio-hardware", "language-unavailable", "voice-unavailable", "network"].includes(code);
+        if (hardFail && cloudFallbackRef.current && !fallbackTriggeredRef.current) {
+          fallbackTriggeredRef.current = true;
+          try { window.speechSynthesis.cancel(); } catch { /* noop */ }
+          cloudFallbackRef.current(token);
+          return;
+        }
         // Try to keep going — skip the bad chunk.
         chunkIndexRef.current += 1;
         if (chunkIndexRef.current >= chunksRef.current.length) {
+          if (cloudFallbackRef.current && !fallbackTriggeredRef.current && !startedRef.current) {
+            fallbackTriggeredRef.current = true;
+            cloudFallbackRef.current(token);
+            return;
+          }
           activeRef.current = false;
           stopKeepAlive();
           setState("idle");
-          setNotice(copy.voiceUnavailable);
+          if (!startedRef.current) setNotice(copy.voiceUnavailable);
           return;
         }
         window.setTimeout(() => speakChunk(token), 60);
