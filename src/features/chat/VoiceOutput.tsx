@@ -480,6 +480,7 @@ export function VoiceOutput({
       chunkIndexRef.current = 0;
       stopKeepAlive();
       clearCloudAudio();
+      if (watchdogRef.current != null) { window.clearTimeout(watchdogRef.current); watchdogRef.current = null; }
       setProgress(0);
       if (supported) {
         try { window.speechSynthesis.cancel(); } catch { /* noop */ }
