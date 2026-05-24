@@ -281,24 +281,31 @@ export function VoiceOutput({
       const runLang: "ar" | "en" = primary?.lang ?? langPrefix;
       const selectedVoice = pickBestVoice(pool, runLang, currentPrefs);
 
+      // Pre-flight: if ANY run in this chunk lacks a matching device voice,
+      // hand the whole message to cloud TTS. Otherwise mixed-language replies
+      // silently drop the unsupported script (e.g. an English voice asked to
+      // speak Arabic emits only the Latin words).
+      const missingVoiceForRun = runs.some((r) => {
+        const v = pickBestVoice(pool, r.lang, currentPrefs);
+        return !v || !v.lang.toLowerCase().startsWith(r.lang);
+      });
+      if (missingVoiceForRun && cloudFallbackRef.current && !fallbackTriggeredRef.current) {
+        fallbackTriggeredRef.current = true;
+        try { window.speechSynthesis.cancel(); } catch { /* noop */ }
+        cloudFallbackRef.current(token);
+        return;
+      }
+
       const utterance = new SpeechSynthesisUtterance(primary?.text ?? chunk);
       utterance.lang = selectedVoice?.lang || (runLang === "ar" ? "ar-SA" : "en-US");
       // Brighter, more energetic delivery — a touch quicker and higher pitch.
       utterance.rate = Math.min(1.25, speedRef.current * 1.08);
       utterance.pitch = runLang === "ar" ? 1.18 : 1.22;
       utterance.volume = 1;
-      // Only attach a voice when it matches the run's language. Otherwise the
-      // OS engine silently drops characters from the unsupported script
-      // (e.g. an English voice asked to speak Arabic emits only Latin words).
       if (selectedVoice && selectedVoice.lang.toLowerCase().startsWith(runLang)) {
         utterance.voice = selectedVoice;
-      } else if (runLang === "ar" && cloudFallbackRef.current && !fallbackTriggeredRef.current) {
-        // No matching device voice for Arabic — silently hand off to cloud TTS.
-        fallbackTriggeredRef.current = true;
-        try { window.speechSynthesis.cancel(); } catch { /* noop */ }
-        cloudFallbackRef.current(token);
-        return;
       }
+
 
 
       // If the chunk had multiple language runs, queue the remainder as
