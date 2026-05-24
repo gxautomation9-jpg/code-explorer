@@ -162,6 +162,12 @@ export function VoiceOutput({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
   const audioTokenRef = useRef(0);
+  // Lazy ref so speakChunk can silently hand off to cloud TTS without a
+  // circular dep on playCloudAudio. Assigned after playCloudAudio is defined.
+  const cloudFallbackRef = useRef<((token: number) => void) | null>(null);
+  const fallbackTriggeredRef = useRef(false);
+  const startedRef = useRef(false);
+  const watchdogRef = useRef<number | null>(null);
 
   const prefs = useVoicePrefs();
   const speechText = useMemo(() => normalizeSpeechText(text), [text]);
