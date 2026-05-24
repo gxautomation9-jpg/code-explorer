@@ -292,12 +292,12 @@ export function VoiceOutput({
       // (e.g. an English voice asked to speak Arabic emits only Latin words).
       if (selectedVoice && selectedVoice.lang.toLowerCase().startsWith(runLang)) {
         utterance.voice = selectedVoice;
-      } else if (runLang === "ar") {
-        setNotice(
-          appLang === "ar"
-            ? "لا يوجد صوت عربي مثبت على جهازك. ثبّت صوتاً عربياً من إعدادات النظام لتشغيل النص العربي."
-            : "No Arabic voice is installed on your device. Install one from your system settings to hear Arabic text.",
-        );
+      } else if (runLang === "ar" && cloudFallbackRef.current && !fallbackTriggeredRef.current) {
+        // No matching device voice for Arabic — silently hand off to cloud TTS.
+        fallbackTriggeredRef.current = true;
+        try { window.speechSynthesis.cancel(); } catch { /* noop */ }
+        cloudFallbackRef.current(token);
+        return;
       }
 
 
