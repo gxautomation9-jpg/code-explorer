@@ -44,16 +44,23 @@ function GxControl() {
 
 function LoginScreen({ onAuthed }: { onAuthed: () => void }) {
   const login = useServerFn(adminLogin);
-  const [pw, setPw] = useState("");
+  const { key } = Route.useSearch();
+  const [pw, setPw] = useState(key ?? "");
   const [busy, setBusy] = useState(false);
+  const triedRef = useRef(false);
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setBusy(true);
     try { await login({ data: { password: pw } }); onAuthed(); }
     catch (err) { toast.error((err as Error).message); }
     finally { setBusy(false); }
   };
+
+  useEffect(() => {
+    if (key && !triedRef.current) { triedRef.current = true; void submit(); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 
   return (
     <div className="grid min-h-screen place-items-center bg-background p-4">
