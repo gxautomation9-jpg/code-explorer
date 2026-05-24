@@ -3,12 +3,13 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getCookie, setCookie } from "@tanstack/react-start/server";
+import { getServerEnv } from "@/lib/server-env";
 
 const COOKIE = "astra_admin_session";
 const SESSION_TTL_MS = 60 * 60 * 1000;
 
 function secret() {
-  const s = process.env.ADMIN_PANEL_PASSWORD;
+  const s = getServerEnv("ADMIN_PANEL_PASSWORD");
   if (!s) throw new Error("Admin not configured");
   return s;
 }
