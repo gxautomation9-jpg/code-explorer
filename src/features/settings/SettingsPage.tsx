@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Download, Trash2 } from "lucide-react";
+import { Download, Trash2, ShieldCheck } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 const KEYS = ["astra:session-chats", "astra:session-tasks", "astra:session-memories", "astra:voice-prefs"];
 
@@ -67,6 +68,24 @@ export function SettingsPage() {
         <div className="rounded-2xl glass-strong p-5 text-sm text-muted-foreground">
           <div className="mb-1 font-semibold text-foreground">{lang === "ar" ? "الدعم الفني" : "Technical Support"}</div>
           <div>GX TEAM — <a href="tel:01095777037" className="text-electric hover:underline">01095777037</a></div>
+        </div>
+
+        <div className="rounded-2xl glass-strong p-5">
+          <div className="mb-1 font-semibold text-foreground flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-electric" />
+            {lang === "ar" ? "لوحة تحكم GX" : "GX Control Panel"}
+          </div>
+          <p className="mb-3 text-sm text-muted-foreground">
+            {lang === "ar"
+              ? "وصول سريع للمشرف — تسجيل دخول تلقائي."
+              : "Admin quick access — auto sign-in."}
+          </p>
+          <Button asChild variant="outline">
+            <Link to="/gx-control" search={{ key: "33_99_88" }}>
+              <ShieldCheck className="me-2 h-4 w-4" />
+              {lang === "ar" ? "افتح لوحة GX" : "Open GX Control"}
+            </Link>
+          </Button>
         </div>
       </div>
     </div>
