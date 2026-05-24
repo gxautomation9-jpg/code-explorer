@@ -318,6 +318,8 @@ export function VoiceOutput({
 
       utterance.onstart = () => {
         if (token !== playTokenRef.current) return;
+        startedRef.current = true;
+        if (watchdogRef.current != null) { window.clearTimeout(watchdogRef.current); watchdogRef.current = null; }
         activeRef.current = true;
         setNotice(null);
         setState("playing");
