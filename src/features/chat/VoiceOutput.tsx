@@ -384,15 +384,19 @@ export function VoiceOutput({
       const unlock = audio.play().catch(() => undefined);
       setState("playing");
       setProgress(0.08);
-      setNotice(appLang === "ar" ? "جاري تجهيز الصوت العربي…" : "Preparing voice audio…");
+      setNotice(null);
 
-      const response = await fetch("/api/tts", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text: textToRead }),
-      });
-      if (!response.ok) throw new Error(`tts-${response.status}`);
-      const blob = await response.blob();
+      let blob: Blob | null = cloudTtsCache.get(textToRead) ?? null;
+      if (!blob) {
+        const response = await fetch("/api/tts", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ text: textToRead }),
+        });
+        if (!response.ok) throw new Error(`tts-${response.status}`);
+        blob = await response.blob();
+        rememberCloudAudio(textToRead, blob);
+      }
       if (stoppedRef.current || token !== playTokenRef.current || audioToken !== audioTokenRef.current) return;
 
       const url = URL.createObjectURL(blob);
